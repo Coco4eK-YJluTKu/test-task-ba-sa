@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: User Registration API
+  version: 1.0.0
+  description: API for registering a new user with validation checks for username, password complexity, and reCAPTCHA.
+servers:
+  - url: https://api.example.com
+paths:
+  /register:
+    post:
+      summary: Register a new user in the system
+      description: Creates a new user account. Requires a valid username, password meeting complexity rules, and a successful reCAPTCHA verification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "ivan"
+                  description: User's first name.
+                last_name:
+                  type: string
+                  example: "ivanov"
+                  description: User's last name.
+                username:
+                  type: string
+                  example: "ivan"
+                  description: The desired username for the new account. Must be unique.
+                password:
+                  type: string
+                  format: password
+                  example: "MyS3cur3P@ss!"
+                  description: The password for the new account. Must meet complexity requirements.
+                recaptcha_token:
+                  type: string
+                  example: "03AGdBq24..."
+                  description: The token received from the reCAPTCHA widget on the client side.
+              required:
+                - first_name
+                - last_name
+                - username
+                - password
+                - recaptcha_token
+      responses:
+        '201':
+          description: The user was successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 123
+                    description: The unique identifier of the newly created user.
+                  status:
+                    type: string
+                    example: "Registration successful!"
+                    description: A success message confirming the registration.
+        '400':
+          description: The request is invalid or the reCAPTCHA verification failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Please verify reCaptcha to register!"
+        '409':
+          description: A user with the provided username already exists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User exists!"
+        '422':
+          description: The request body contains unprocessable entity due to validation errors (e.g., password complexity).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Passwords must have at least one non alphanumeric character, one digit ('0'-'9'), one uppercase (A'-'Z'), one lowercase ('a'-'Z'), one special character and Password must be eight characters or longer."
